@@ -1,3 +1,5 @@
 database:
- host: localhost
- port: 27017
+ server: localhost:27018
+ ensurediskwrite: false
+ name : testproducer
+nthreads: 1
