@@ -26,6 +26,7 @@ func main() {
 	flag.IntVar(&config.Nthreads, "p", 1, "Number of threads to use")
 	flag.IntVar(&config.Consumer.GroupID, "id", 1, "Consumer group id")
 	flag.IntVar(&config.Consumer.NImagesPerRead, "n", 1, "Number of images per read")
+	flag.BoolVar(&config.Consumer.ResetCounter, "r", false, "Reset counter")
 
 	flag.Parse()
 
@@ -60,7 +61,12 @@ func main() {
 
 	db.UseCollection("groupId")
 
-	db.DeleteAllRecords()
+	if config.Consumer.ResetCounter {
+		if err := db.DeleteAllRecords(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
 
 	err = db.IncrementField(config.Consumer.GroupID, 0, "p", &curPointer)
 	if err != nil {
@@ -119,10 +125,10 @@ func consume(nthread int) {
 				fmt.Println(err)
 				return
 			}
-			if len(records)==0{
+			if len(records) == 0 {
 				return
 			}
-			for _,rec:=range(records){
+			for _, rec := range (records) {
 				processRecord(rec)
 			}
 		}
@@ -130,5 +136,5 @@ func consume(nthread int) {
 }
 
 func processRecord(rec common.Record) {
-//	fmt.Println(rec.SegmentID)
+	fmt.Println(rec.SegmentID)
 }

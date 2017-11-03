@@ -13,8 +13,9 @@ type Config struct {
 			 }
 	Nthreads int
 	Consumer struct {
-				 GroupID int
+				 GroupID        int
 				 NImagesPerRead int
+				 ResetCounter   bool
 			 }
 }
 
