@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named consumer
+
+# Build rule for target.
+consumer: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 consumer
+.PHONY : consumer
+
+# fast build rule for target.
+consumer/fast:
+	$(MAKE) -f CMakeFiles/consumer.dir/build.make CMakeFiles/consumer.dir/build
+.PHONY : consumer/fast
+
+#=============================================================================
 # Target rules for targets named producer
 
 # Build rule for target.
@@ -131,6 +144,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... consumer"
 	@echo "... producer"
 .PHONY : help
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"github.com/sergeyyakubov/hidra2_prototype/dbtest/conf"
-	"github.com/sergeyyakubov/hidra2_prototype/dbtest/database"
 	"time"
 	"github.com/sergeyyakubov/hidra2_prototype/dbtest/common"
 )
@@ -19,7 +18,7 @@ func main() {
 	flag.StringVar(&configFileName, "c", "", "Config file name")
 	flag.IntVar(&config.Nthreads, "p", 1, "Number of threads to use")
 	flag.StringVar(&config.Database.Server, "s", "", "Database server")
-	flag.StringVar(&config.Database.Name, "dbname", "testproducer", "Database name")
+	flag.StringVar(&config.Database.Name, "dbname", "test", "Database name")
 	flag.BoolVar(&config.Database.EnsureDiskWrite, "j", false, "Ensure write to disk")
 
 
@@ -34,7 +33,7 @@ func main() {
 
 	flag.Parse()
 
-	db, err := connectDb()
+	db, err := common.ConnectDb(config)
 
 	if err != nil {
 		fmt.Println(err)
@@ -68,22 +67,9 @@ func main() {
 	}
 }
 
-func connectDb() (db database.Agent, err error) {
-
-	db = new(database.Mongodb)
-
-	db.SetServer(config.Database.Server)
-	db.SetParams(config.Database.Name, "records",10*time.Second,config.Database.EnsureDiskWrite)
-
-	if err = db.Connect(); err != nil {
-		return nil, err
-	}
-	return db, nil
-}
-
 func produce(start, shift int) {
 	curID := start
-	db, err := connectDb()
+	db, err := common.ConnectDb(config)
 	defer db.Close()
 
 	if err != nil {
@@ -95,7 +81,7 @@ func produce(start, shift int) {
 		var rec common.Record
 		rec.ID = curID
 		rec.BufferAddr = "126.567.344.346:45600"
-		rec.SegmentID = 12345
+		rec.SegmentID = curID
 		rec.FName = "/data/tztf/sdfsdf/sdfsdf"
 		rec.Reserv[0] = "fdgfdgdfgsdfgsdgsdkfjgbdsibgiub"
 
@@ -104,7 +90,7 @@ func produce(start, shift int) {
 			fmt.Println(err)
 			return
 		}
-		if curID > 150000 {
+		if curID > 15000000 {
 			break
 		}
 		curID += shift

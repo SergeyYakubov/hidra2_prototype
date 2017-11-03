@@ -10,10 +10,15 @@ type Agent interface {
 	GetNRecords() (int,error)
 	GetRecords(interface{}, interface{}) error
 	GetRecordsByID(string, interface{}) error
+	GetRecordsByIDRange(int, int, interface{}) error
 	DeleteRecordByID(string) error
 	DeleteAllRecords() error
 	Connect() error
 	SetParams(params ...interface{}) error
 	SetServer(string)
+	UseCollection(string)
+	UseDefaultCollection()
+	IncrementField(int, int, string, interface{}) error
+	GetRecordByID(int, interface{}) error
 	Close()
 }

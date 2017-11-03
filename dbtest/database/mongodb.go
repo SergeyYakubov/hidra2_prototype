@@ -13,6 +13,7 @@ type Mongodb struct {
 	session           *mgo.Session
 	name              string
 	col               string
+	defaultCol        string
 	timeout           time.Duration
 	srv               string
 	ensureWriteToDisk bool
@@ -133,19 +134,20 @@ func (db *Mongodb) SetParams(params ...interface{}) error {
 	}
 	var ok bool
 	db.name, ok = params[0].(string)
-	if !ok{
+	if !ok {
 		return errors.New("Mongodb: Wrong param db.name")
 	}
 	db.col, ok = params[1].(string)
-	if !ok{
+	if !ok {
 		return errors.New("Mongodb: Wrong param db.col")
 	}
+	db.defaultCol = db.col
 	db.timeout, ok = params[2].(time.Duration)
-	if !ok{
+	if !ok {
 		return errors.New("Mongodb: Wrong param db.timeout")
 	}
 	db.ensureWriteToDisk, ok = params[3].(bool)
-	if !ok{
+	if !ok {
 		return errors.New("Mongodb: Wrong param db.ensureWriteToDisk")
 	}
 
@@ -202,6 +204,53 @@ func checkID(id string) error {
 	return nil
 }
 
+func (db *Mongodb) IncrementField(id int, inc int, fieldName string, res interface{}) (err error) {
+	change := mgo.Change{
+		Update: bson.M{"$inc": bson.M{fieldName: inc}},
+		Upsert: true,
+		ReturnNew: true,
+	}
+
+	q := bson.M{"_id": id}
+
+	c := db.session.DB(db.name).C(db.col)
+
+	_, err = c.Find(q).Apply(change, res)
+
+	return err
+
+}
+func (db *Mongodb) GetRecordsByIDRange(from int, to int, res interface{}) error{
+	q := bson.M{"_id": bson.M{
+		"$gte":from,
+		"$lte":to,
+	}}
+
+	if err := db.updateSession(); err != nil {
+		return err
+	}
+	c := db.session.DB(db.name).C(db.col)
+
+	return c.Find(q).Sort("_id").All(res)
+
+}
+
+
+func (db *Mongodb) GetRecordByID(id int, res interface{}) error {
+
+	q := bson.M{"_id": id}
+	if err := db.updateSession(); err != nil {
+		return err
+	}
+
+	c := db.session.DB(db.name).C(db.col)
+
+	return c.Find(q).One(res)
+
+}
+
+
+
 func (db *Mongodb) GetRecordsByID(id string, res interface{}) error {
 	if err := checkID(id); err != nil {
 		return err
@@ -224,4 +273,12 @@ func (db *Mongodb) DeleteRecordByID(id string) error {
 	c := db.session.DB(db.name).C(db.col)
 	_, err := c.RemoveAll(q)
 	return err
+}
+
+func (db *Mongodb) UseCollection(col string) {
+	db.col = col
+}
+
+func (db *Mongodb) UseDefaultCollection() {
+	db.col = db.defaultCol
 }

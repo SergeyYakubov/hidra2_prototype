@@ -7,11 +7,15 @@ import (
 
 type Config struct {
 	Database struct {
-			 Server          string
-			 EnsureDiskWrite bool
-			 Name            string
-		 }
+				 Server          string
+				 EnsureDiskWrite bool
+				 Name            string
+			 }
 	Nthreads int
+	Consumer struct {
+				 GroupID int
+				 NImagesPerRead int
+			 }
 }
 
 func ReadConfig(fname string, config interface{}) error {

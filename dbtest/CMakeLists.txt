@@ -17,3 +17,8 @@ add_custom_target(producer ALL
 				  WORKING_DIRECTORY ${DBTEST_SOURCE_DIR}
 				  VERBATIM)
 
+add_custom_target(consumer ALL
+				  COMMAND  ${GO_ENABLED} go build ${GO_OPTS} -o bin/consumer -tags release ./consumer
+				  WORKING_DIRECTORY ${DBTEST_SOURCE_DIR}
+				  VERBATIM)
+

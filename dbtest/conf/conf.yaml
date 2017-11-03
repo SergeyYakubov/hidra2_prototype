@@ -3,3 +3,6 @@ database:
  ensurediskwrite: false
  name : testproducer
 nthreads: 1
+consumer:
+ groupid: 1
+ nimagesperread: 1
